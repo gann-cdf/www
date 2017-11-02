@@ -1,0 +1,3 @@
+<Directory "/.git">
+    Deny from all
+</Directory>
