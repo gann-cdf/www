@@ -2,22 +2,35 @@
 <html>
 <head>
     <title>Computing, Design &amp; Fabrication Department</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%;
+        }
+
         body {
-            background: url("gann-desktop.png");
-            background-position: center;
-            background-size: 4in;
-            background-repeat: no-repeat;
             background-color: #8b092f;
-            position: relative;
             color: white;
-            font-family: sans-serif;
+            font-family: 'Montserrat', sans-serif;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content {
+            background-image: url("gann.png");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            height: 80%;
+            max-height: 645px;
+            display: flex;
+            align-items: center;
         }
 
         h1 {
             font-size: 48pt;
-            text-shadow: 2pt 2pt 1pt #ab0534;
         }
 
         a {
@@ -25,19 +38,14 @@
             text-decoration: none;
             border-bottom: dotted 1px white;
         }
-
-        .centered {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
     </style>
 </head>
 <body>
-    <div class="centered">
-        <h1>Computing, Design &amp; Fabrication Department</h1>
-        <p><a href="mailto:sbattis@gannacademy.org">Contact us</a></p>
+    <div class="content">
+        <div>
+            <h1>Computing, Design&nbsp;&amp; Fabrication Department</h1>
+            <p><a href="mailto:sbattis@gannacademy.org">Contact us</a></p>
+        </div>
     </div>
 </body>
 </html>
