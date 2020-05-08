@@ -1,0 +1,43 @@
+<h1>Parts Requisition for <span class="team-name">Team</span></h1>
+<form id="requisition-detail" class="form needs-validation" method="post">
+    <input name="form" type="hidden" value="requisition-detail">
+    <div class="row p-1 form-group">
+        <label class="col-form-label" for="team">Team</label>
+        <div class="col-auto">
+            <select class="custom-select" id="team" name="team" required>
+                    <option disabled selected value="">Select your team&hellip;</option>
+                <optgroup id="teams-list" label=""></optgroup>
+            </select>
+        </div>
+    </div>
+    <div id="items"></div>
+    <div class="form-row p-1">
+        <div class="col form-group">
+            <label for="fn" class="col-form-label-sm">First Name</label>
+            <input class="form-control col mr-1" id="fn" name="fn" placeholder="First Name" type="text" required
+                   pattern=".+">
+        </div>
+        <div class="col form-group">
+            <label for="ln" class="col-form-label-sm">Last Name</label>
+            <input class="form-control col mr-1" id="ln" name="ln" placeholder="Last Name" type="text" required
+                   pattern=".+">
+        </div>
+        <div class="col form-group">
+            <label for="email" class="col-form-label-sm">Email</label>
+            <input class="form-control col" id="email" name="email" placeholder="Email" type="email" required>
+        </div>
+    </div>
+    <div class="row p-1">
+        <p>
+            By clicking submit below, I am certifying that I am an authorized requisitioner for the
+            <span class="team-name">team</span>, that I have reviewed this requisition for correctness in both
+            quantity and specification, and that our operating budget has sufficient funds to purchase these parts.
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-auto ml-auto">
+            <button class="btn btn-light" id="reset" type="button">Reset</button>
+            <button class="btn btn-primary" id="submit" type="submit">Submit</button>
+        </div>
+    </div>
+</form>

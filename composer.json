@@ -1,0 +1,23 @@
+{
+    "name": "gann-cdf/robotics",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Seth Battis",
+            "email": "sbattis@gannacademy.org"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-dom": "*",
+        "ext-curl": "*",
+        "vlucas/phpdotenv": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gann\\CDF\\Robotics\\": "src/"
+        }
+    }
+}

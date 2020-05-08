@@ -1,0 +1,29 @@
+<h1>Parts Requisition for <span class="team-name">Team</span></h1>
+<form id="requisition-urls" class="form needs-validation" method="post">
+    <input name="form" type="hidden" value="requisition-urls">
+    <div class="row p-1 form-group">
+        <label class="col-form-label" for="team">Team</label>
+        <div class="col-auto">
+            <select class="custom-select" id="team" name="team" required>
+                <option selected disabled value="">Select a team&hellip;</option>
+            </select>
+            <div class="invalid-feedback">
+                Please select a team
+            </div>
+        </div>
+    </div>
+    <div class="row p-1 form-group">
+        <label for="urls">URLs</label>
+        <textarea id="urls" name="items" class="form-control" rows="10" required
+                  placeholder="One URL per line:&#10;&#10;https://amazon.com/&hellip;&#10;https://andymark.com/&hellip;&#10;https://gobilda.com/&hellip;&#10;&#10;You can also, optionally, include quantities:&#10;&#10;5 https://amazon.com/&hellip;"></textarea>
+        <div class="invalid-feedback">
+            Please enter a list of URLs (with optional quantities)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-auto ml-auto">
+            <button class="btn btn-light" id="reset" type="reset">Reset</button>
+            <button class="btn btn-primary" id="submit" type="submit">Submit</button>
+        </div>
+    </div>
+</form>

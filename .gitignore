@@ -1,0 +1,39 @@
+# Dependencies
+/vendor/
+/node_modules/
+/bower_components/
+/external/
+
+# IDEs and editors
+/.idea/
+.project
+.classpath
+*.launch
+.settings/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# PHP development
+phpdoc.xml
+/coverage/
+.phpunit.result.cache
+
+# environment
+.env
+.env.*
+!.env.defaults
+!.env.example
+
+# runtme
+/logs/*
+!/logs/README.md
+/var/*
+!/var/README.md
+/html
+*.log*
+
+# js development
+/.pnp
+.pnp.js
