@@ -5,22 +5,28 @@
         <label class="col-form-label" for="team">Team</label>
         <div class="col-auto">
             <select class="custom-select" id="team" name="team" required>
-                    <option disabled selected value="">Select your team&hellip;</option>
+                <option disabled selected value="">Select your team&hellip;</option>
                 <optgroup id="teams-list" label=""></optgroup>
             </select>
         </div>
     </div>
     <div id="items"></div>
+    <div class="row p-1">
+        <div class="col-auto ml-auto">
+            <h4 class="row">
+                <label class="col-form-label-sm">Total</label>
+                <div class="form-text col-auto">$<span id="total">0.00</span> + Shipping</div>
+            </h4>
+        </div>
+    </div>
     <div class="form-row p-1">
         <div class="col form-group">
             <label for="fn" class="col-form-label-sm">First Name</label>
-            <input class="form-control col mr-1" id="fn" name="fn" placeholder="First Name" type="text" required
-                   pattern=".+">
+            <input class="form-control col mr-1" id="fn" name="fn" placeholder="First Name" type="text" required>
         </div>
         <div class="col form-group">
             <label for="ln" class="col-form-label-sm">Last Name</label>
-            <input class="form-control col mr-1" id="ln" name="ln" placeholder="Last Name" type="text" required
-                   pattern=".+">
+            <input class="form-control col mr-1" id="ln" name="ln" placeholder="Last Name" type="text" required>
         </div>
         <div class="col form-group">
             <label for="email" class="col-form-label-sm">Email</label>

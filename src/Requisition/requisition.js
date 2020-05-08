@@ -124,7 +124,7 @@ const populateItems = () => {
         Object.keys(item).forEach(prop => {
           itemHtml = itemHtml.replace(new RegExp(`%%${prop}%%`, 'ig'), `${String(item[prop]).replace(/ /g, '&#32;')}`);
         })
-        itemHtml = itemHtml.replace(/%%w[^%]+%%/g, '');
+        itemHtml = itemHtml.replace(/%%[^%]+%%/g, '');
         let itemBlock = document.createElement('div');
         itemsGroup.appendChild(itemBlock);
         itemBlock.outerHTML = itemHtml;
@@ -171,14 +171,24 @@ const handleNameChange = item => {
   item.querySelector('.item-description').textContent = itemName;
 }
 
+const handleGrandTotalChange = () => {
+  let total = 0;
+  itemsGroup.querySelectorAll('.item-total').forEach(itemTotal => {
+    total += Number(itemTotal.textContent);
+  });
+  document.querySelector('#total').innerHTML = total.toFixed(2);
+}
+
 const handleItemTotalChange = item => {
   let itemTotal = "";
   const quantity = item.querySelector('.quantity').value;
   const unitCost = item.querySelector('.unit-cost').value;
+  item.querySelector('.unit-cost').value = Number(unitCost).toFixed(2);
   if (quantity && unitCost) {
-    itemTotal = `$${(quantity * unitCost).toFixed(2)}`;
+    itemTotal = `${(quantity * unitCost).toFixed(2)}`;
   }
   item.querySelector('.item-total').textContent = itemTotal;
+  handleGrandTotalChange(item, itemTotal);
 }
 
 const refreshRemoveItemButtons = () => {
@@ -192,6 +202,7 @@ const refreshRemoveItemButtons = () => {
       button.classList.remove('d-none');
     }
   });
+  handleGrandTotalChange();
 }
 
 const handleRemoveItem = item => {

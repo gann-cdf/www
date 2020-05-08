@@ -2,7 +2,7 @@
 
 use Gann\CDF\Robotics\Requisition\RequisitionURLs;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $request = json_decode(file_get_contents('php://input'), true);
 if (empty($request)) {

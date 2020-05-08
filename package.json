@@ -27,7 +27,7 @@
     "scripts": {
         "watch": "webpack --watch",
         "js-dev": "webpack-dev-server --open --env.local",
-        "php-dev": "npm run build & cd html & php -S robotics.lvh.me:8080",
+        "php-dev": "npm run build & php -S robotics.lvh.me:8080 -t html/",
         "build": "webpack -p"
     },
     "repository": {

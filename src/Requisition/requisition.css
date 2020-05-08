@@ -10,6 +10,10 @@
     max-width: min(100px, 10vw);
 }
 
+img[src=""] {
+    display: none;
+}
+
 /* such a hack -- https://github.com/vuejs/vue/issues/7058#issuecomment-441322358 */
 :-webkit-autofill {
     animation-name: onAutoFillStart;

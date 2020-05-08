@@ -19,29 +19,44 @@ class RequisitionURLs implements FormProcessor
     const DOM = 'dom';
     const HTML = 'html';
     const CURL = 'curl';
+    const INDEX = 'index';
 
+    const ITEM_PATTERN = '/^\s*(\d+)\s+(.*)\s*$/';
     const PRICE_PATTERN = '/^\s*.?\s*(\d+(\.\d{2})?)\s*$/';
+    const TLD_PATTERN = '/(.*\.)*([^.]+)(\.[a-z]{3})/i';
 
     static function process(array $request)
     {
+        header('Content-type: application/json');
         $response = [];
         $items = [];
+        $scrape = [];
         foreach ($request as $field => $value) {
             switch ($field) {
                 case 'items':
                     $parts = explode("\n", $value);
                     foreach ($parts as $part) {
-                        if (preg_match('/^\s*(\d+)\s+(.*)$/', $part, $matches)) {
-                            $items[] = [
-                                self::QUANTITY => $matches[1],
-                                self::URL => $matches[2]
-                            ];
+                        $item = [self::QUANTITY => 1];
+                        if (preg_match(self::ITEM_PATTERN, $part, $matches)) {
+                            $item[self::QUANTITY] = $matches[1];
+                            $item[self::URL] = $matches[2];
                         } elseif (false === empty(trim($part))) {
-                            $items[] = [
-                                self::QUANTITY => 1,
-                                self::URL => trim($part)
-                            ];
+                            $item[self::URL] = trim($part);
                         }
+                        preg_match(self::TLD_PATTERN, parse_url($item[self::URL], PHP_URL_HOST), $tld);
+                        $site = strtolower($tld[2]);
+                        switch ($site) {
+                            case 'amazon':
+                            case 'andymark':
+                            case 'gobilda':
+                                $item[self::SOURCE] = $site;
+                                $item[self::INDEX] = sizeof($items);
+                                $scrape[] = $item;
+                                break;
+                            default:
+                                $item[self::SOURCE] = "{$tld[2]}{$tld[3]}";
+                        }
+                        $items[] = $item;
                     }
                     break;
                 default:
@@ -50,32 +65,24 @@ class RequisitionURLs implements FormProcessor
         }
 
         $handle = curl_multi_init();
-        foreach ($items as $i => $item) {
-            if (false === empty($item[self::URL])) {
-                $h = curl_init();
-                curl_setopt_array($h, [
-                    // i'm a real boy!
-                    CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.1; rv:8.0) Gecko/20100101 Firefox/8.0',
-                    CURLOPT_REFERER => 'http://robotics.gannacademy.org/requisition.html',
-                    //CURLOPT_COOKIEFILE => 'cookie.txt',
-                    //CURLOPT_COOKIEJAR => 'cookie.txt',
+        foreach ($scrape as $i => $item) {
+            $h = curl_init();
+            curl_setopt_array($h, [
+                // i'm a real boy!
+                CURLOPT_USERAGENT => getenv('USER_AGENT'),
+                CURLOPT_REFERER => $_SERVER['PHP_SELF'],
 
-                    // what do we want?
-                    CURLOPT_URL => $item[self::URL],
-                    CURLOPT_HEADER => false,
-                    CURLOPT_RETURNTRANSFER => true,
+                // what do we want?
+                CURLOPT_URL => $item[self::URL],
+                CURLOPT_HEADER => false,
+                CURLOPT_RETURNTRANSFER => true,
 
-                    // we'll go wherever it takes us
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_AUTOREFERER => true,
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_CONNECTTIMEOUT => 120,
-                    CURLOPT_TIMEOUT => 120
+                // we'll go wherever it takes us
+                CURLOPT_FOLLOWLOCATION => true, // required for Amazon
 
-                ]);
-                curl_multi_add_handle($handle, $h);
-                $items[$i][self::CURL] = $h;
-            }
+            ]);
+            curl_multi_add_handle($handle, $h);
+            $scrape[$i][self::CURL] = $h;
         }
 
         // process all requests
@@ -86,53 +93,55 @@ class RequisitionURLs implements FormProcessor
             }
         } while ($active && $status === CURLM_OK);
         if ($status !== CURLM_OK) {
-            throw new Exception(curl_multi_strerror($status), curl_multi_errno($handle));
+            echo json_encode(['error' => [
+                'errno' => curl_multi_errno($handle),
+                'message' => curl_multi_strerror($status)
+            ]]);
+            exit;
         }
 
-        foreach ($items as $i => $item) {
-            if (false === empty($item[self::CURL])) {
-                $items[$i][self::HTML] = curl_multi_getcontent($item[self::CURL]);
-                curl_multi_remove_handle($handle, $item[self::CURL]);
-                unset($items[$i][self::CURL]);
+        // scrape downloaded HTML
+        foreach ($scrape as $item) {
+            // collect downloaded HTML
+            $item[self::HTML] = curl_multi_getcontent($item[self::CURL]);
+            curl_multi_remove_handle($handle, $item[self::CURL]);
+            unset($item[self::CURL]);
+
+            // if we have downloaded HTML, process it with designated scraping function
+            if (false === empty($item[self::HTML])) {
+                $item[self::DOM] = new DOMDocument();
+                $error = error_reporting(E_ERROR); // ignore finicky HTML errors
+                $item[self::DOM]->loadHTML($item[self::HTML]);
+                error_reporting($error); // restore prior error reporting level
+
             }
+            $i = $item[self::INDEX];
+            unset($item[self::INDEX]);
+            unset($item[self::HTML]);
+            $item = call_user_func([RequisitionURLs::class, $item[self::SOURCE]], $item);
+            unset($item[self::DOM]);
+            $items[$i] = $item;
         }
         curl_multi_close($handle);
 
-        foreach ($items as $i => $item) {
-            if (false === empty($item[self::HTML])) {
-                $site = strtolower(preg_replace('/(.*\.)*([^.]+)\.[a-z]{3}/i', '$2', parse_url($item[self::URL],
-                    PHP_URL_HOST)));
-                $items[$i][self::DOM] = new DOMDocument();
-                $error = error_reporting(E_ERROR); // ignore finicky HTML errors
-                $items[$i][self::DOM]->loadHTML($item[self::HTML]);
-                unset($items[$i][self::HTML]);
-                error_reporting($error); // restore prior error reporting level
-
-                switch ($site) {
-                    case 'amazon':
-                        $items[$i] = self::amazon($items[$i]);
-                        break;
-                    case 'andymark':
-                        $items[$i] = self::andymark($items[$i]);
-                        break;
-                    case 'gobilda':
-                        $items[$i] = self::gobilda($items[$i]);
-                        break;
-                }
-                unset($items[$i][self::DOM]);
-            }
-        }
         $response['items'] = $items;
-        header('Content-type: application/json');
         echo json_encode($response);
         exit;
     }
 
+    /**
+     * @param string[]|DOMDocument[] $item
+     * @return array
+     */
     private static function amazon($item)
     {
         $item[self::SOURCE] = 'Amazon';
         if ($name = $item[self::DOM]->getElementById('productTitle')) {
             $item[self::NAME] = trim($name->textContent);
+        }
+        preg_match('@.*/dp/([^/?]+).*@', parse_url($item[self::URL], PHP_URL_PATH), $sku);
+        if (false === empty($sku[1])) {
+            $item[self::SKU] = $sku[1];
         }
         if ($price = $item[self::DOM]->getElementById('priceblock_ourprice')) {
             $item[self::UNIT_COST] = preg_replace(self::PRICE_PATTERN, '$1', $price->textContent);
@@ -140,10 +149,13 @@ class RequisitionURLs implements FormProcessor
         if ($preview = $item[self::DOM]->getElementById('landingImage')) {
             $item[self::PREVIEW] = trim($preview->getAttribute('data-old-hires'));
         }
-        // echo '<img src="' . preg_replace('/(.*)_SL\d+_\.jpg$/', '$1_SL100_.jpg', $item['preview']) . '">';
         return $item;
     }
 
+    /**
+     * @param string[]|DOMDocument[] $item
+     * @return array
+     */
     private static function andymark($item)
     {
         $xpath = new DOMXPath($item[self::DOM]);
@@ -165,6 +177,10 @@ class RequisitionURLs implements FormProcessor
         return $item;
     }
 
+    /**
+     * @param string[]|DOMDocument[] $item
+     * @return array
+     */
     private static function gobilda($item)
     {
         $xpath = new DOMXPath($item[self::DOM]);
