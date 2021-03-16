@@ -1,5 +1,6 @@
 <?php
 
+use Gann\CDF\Robotics\Requisition\RequisitionDetail;
 use Gann\CDF\Robotics\Requisition\RequisitionURLs;
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -16,6 +17,9 @@ if (false === empty($request['form'])) {
 switch ($form) {
     case 'requisition-urls':
         RequisitionURLs::process($request);
+        break;
+    case 'requisition-detail':
+        RequisitionDetail::process($request);
         break;
     default:
         $request = var_export($request, true);
